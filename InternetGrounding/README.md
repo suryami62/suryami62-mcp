@@ -1,47 +1,58 @@
 # InternetGrounding MCP Server
 
-This project is a Model Context Protocol (MCP) server that provides a tool to interact with the Google Gemini API. It allows clients communicating via MCP to retrieving up-to-date information with the help of a search engine.
+A Model Context Protocol (MCP) server for retrieving up-to-date information with the help of a search engine.
 
 ## Prerequisites
 
-*   .NET SDK (version 9.0 or later)
+- .NET SDK 9.0+
 
 ## Setup
 
-1.  Clone this repository.
-2.  Navigate to the `InternetGrounding` directory.
-3.  Configure your Google Gemini API key:
-    *   Open the `appsettings.json` file.
-    *   Replace `"YOUR_GEMINI_API_KEY"` with your actual API key from Google AI Studio or Google Cloud.
-    *   The `appsettings.json` should look like this:
+1. Clone the repository and navigate to the `InternetGrounding` folder.
+2. Configure your Gemini API key, Model ID, and Generate Content endpoint via:
+   - Command line arguments:
+     ```pwsh
+     dotnet run -- --GeminiApi:GEMINI_API_KEY="API_KEY" --GeminiApi:MODEL_ID="model-id" --GeminiApi:GENERATE_CONTENT_API="generateContent"
+     ```
+   - Or environment variables:
+     ```pwsh
+     $env:GeminiApi__GEMINI_API_KEY="API_KEY"
+     $env:GeminiApi__MODEL_ID="model-id"
+     $env:GeminiApi__GENERATE_CONTENT_API="generateContent"
+     dotnet run
+     ```
 
-    ```json
-    {
-      "GeminiApi": {
-        "GEMINI_API_KEY": "YOUR_GEMINI_API_KEY",
-        "MODEL_ID": "gemini-2.5-flash",
-        "GENERATE_CONTENT_API": "generateContent"
-      }
+## Build & Run
+
+```pwsh
+dotnet build
+dotnet run -- --GeminiApi:GEMINI_API_KEY="API_KEY" --GeminiApi:MODEL_ID="model-id" --GeminiApi:GENERATE_CONTENT_API="generateContent"
+```
+
+## MCP Client Configuration
+
+Example configuration in the client's `settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "InternetGrounding": {
+      "type": "stdio",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "PATH/InternetGrounding.csproj",
+        "--",
+        "--GeminiApi:GEMINI_API_KEY=API_KEY",
+        "--GeminiApi:MODEL_ID=model-id",
+        "--GeminiApi:GENERATE_CONTENT_API=generateContent"
+      ]
     }
-    ```
-
-## Building and Running
-
-1.  Open a terminal in the `InternetGrounding` directory.
-2.  Build the project:
-
-    ```pwsh
-    dotnet build
-    ```
-
-3.  Run the server:
-
-    ```pwsh
-    dotnet run
-    ```
-
-The server will start and listen for MCP communication, typically over standard input/output.
+  }
+}
+```
 
 ## Usage
 
-Once the server is running, an MCP client can connect to it and use the `AskGemini` tool provided by the server. The `AskGemini` tool takes a text prompt as input and returns the response from the configured Google Gemini model.
+Use the `AskGemini` tool to send prompts and receive responses from the Gemini API.
