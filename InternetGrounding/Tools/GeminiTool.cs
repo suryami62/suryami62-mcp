@@ -1,10 +1,10 @@
+using InternetGrounding.Tools.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 using System.ComponentModel;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace InternetGrounding.Tools;
 
@@ -66,13 +66,69 @@ public class GeminiTool(IConfiguration configuration, IHttpClientFactory httpCli
                     if (geminiResponse?.Candidates != null && geminiResponse.Candidates.Count > 0)
                     {
                         Candidate firstCandidate = geminiResponse.Candidates[0];
+                        StringBuilder resultBuilder = new();
+
                         if (firstCandidate.Content?.Parts != null && firstCandidate.Content.Parts.Count > 0)
                         {
                             Part firstPart = firstCandidate.Content.Parts[0];
                             if (firstPart != null && !string.IsNullOrEmpty(firstPart.Text))
                             {
-                                return firstPart.Text;
+                                _ = resultBuilder.AppendLine("Main Text:");
+                                _ = resultBuilder.AppendLine(firstPart.Text);
                             }
+                        }
+
+                        if (firstCandidate.GroundingMetadata != null)
+                        {
+                            _ = resultBuilder.AppendLine("\nGrounding Information:");
+                            if (firstCandidate.GroundingMetadata.WebSearchQueries != null && firstCandidate.GroundingMetadata.WebSearchQueries.Count > 0)
+                            {
+                                _ = resultBuilder.AppendLine("Web Search Queries:");
+                                foreach (string query in firstCandidate.GroundingMetadata.WebSearchQueries)
+                                {
+                                    _ = resultBuilder.AppendLine($"- {query}");
+                                }
+                            }
+                            if (firstCandidate.GroundingMetadata.GroundingChunks != null && firstCandidate.GroundingMetadata.GroundingChunks.Count > 0)
+                            {
+                                _ = resultBuilder.AppendLine("Grounding Chunks:");
+                                foreach (GroundingChunk chunk in firstCandidate.GroundingMetadata.GroundingChunks)
+                                {
+                                    if (chunk.Web != null)
+                                    {
+                                        _ = resultBuilder.AppendLine($"- URI: {chunk.Web.Uri}, Title: {chunk.Web.Title}");
+                                    }
+                                }
+                            }
+                            if (firstCandidate.GroundingMetadata.GroundingSupports != null && firstCandidate.GroundingMetadata.GroundingSupports.Count > 0)
+                            {
+                                _ = resultBuilder.AppendLine("Grounding Supports:");
+                                foreach (GroundingSupport support in firstCandidate.GroundingMetadata.GroundingSupports)
+                                {
+                                    if (support.Segment != null)
+                                    {
+                                        _ = resultBuilder.AppendLine($"- Text: {support.Segment.Text}");
+                                    }
+                                }
+                            }
+                        }
+
+                        if (firstCandidate.UrlContextMetadata != null && firstCandidate.UrlContextMetadata.UrlMetadata != null && firstCandidate.UrlContextMetadata.UrlMetadata.Count > 0)
+                        {
+                            _ = resultBuilder.AppendLine("\nURL Context Metadata:");
+                            _ = resultBuilder.AppendLine("Retrieved URLs:");
+                            foreach (UrlMetadatum urlMeta in firstCandidate.UrlContextMetadata.UrlMetadata)
+                            {
+                                if (!string.IsNullOrEmpty(urlMeta.RetrievedUrl))
+                                {
+                                    _ = resultBuilder.AppendLine($"- {urlMeta.RetrievedUrl}");
+                                }
+                            }
+                        }
+
+                        if (resultBuilder.Length > 0)
+                        {
+                            return resultBuilder.ToString();
                         }
                     }
 
@@ -114,30 +170,4 @@ public class GeminiTool(IConfiguration configuration, IHttpClientFactory httpCli
             return $"Error calling Gemini API: {e.Message}";
         }
     }
-}
-
-public class GeminiResponse
-{
-    [JsonPropertyName("candidates")]
-    public List<Candidate>? Candidates { get; set; }
-}
-
-public class Candidate
-{
-    [JsonPropertyName("content")]
-    public Content? Content { get; set; }
-}
-
-public class Content
-{
-    [JsonPropertyName("parts")]
-    public List<Part>? Parts { get; set; }
-    [JsonPropertyName("role")]
-    public string? Role { get; set; }
-}
-
-public class Part
-{
-    [JsonPropertyName("text")]
-    public string? Text { get; set; }
 }
