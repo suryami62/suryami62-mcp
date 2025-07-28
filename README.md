@@ -1,15 +1,67 @@
-# MCP Server Collection by suryami62
+# InternetGrounding MCP Server
 
-Welcome to the repository of MCP Servers developed by suryami62. This collection includes various servers designed to extend capabilities through the Model Context Protocol (MCP).
+InternetGrounding is a Model Context Protocol (MCP) server that enables fetching up-to-date information from the internet using the Gemini API and search engines. It is suitable for applications that require real-time data grounding.
 
-## Available MCP Servers
+## Key Features
 
-- [**InternetGrounding**](InternetGrounding/): A Model Context Protocol (MCP) server for retrieving up-to-date information with the help of a search engine.
+- Integration with the Gemini API for information search and processing.
+- Supports stdio-based MCP Server communication.
+- `AskGemini` tool for Gemini-based prompts and responses.
+- Flexible configuration via environment variables or CLI arguments.
 
-## Usage Instructions
+## Installation
 
-For detailed instructions on how to use each MCP Server, please refer to the individual directories. Each server may have its own setup and usage guide.
+### Prerequisites
 
-## Contributing
+- .NET SDK 9.0+
 
-If you are interested in contributing to this collection or have any questions, feel free to reach out or submit a pull request.
+### Installation Steps
+
+1. Clone the repository and navigate to the `InternetGrounding` folder.
+2. Configure the Gemini API Key and Model ID:
+   - **Command-line arguments:**
+     ```pwsh
+     dotnet run -- --GeminiApi:GEMINI_API_KEY="API_KEY" --GeminiApi:MODEL_ID="model-id"
+     ```
+   - **Environment variables:**
+     ```pwsh
+     $env:GeminiApi__GEMINI_API_KEY="API_KEY"
+     $env:GeminiApi__MODEL_ID="model-id"
+     dotnet run
+     ```
+
+## Build & Run
+
+```pwsh
+dotnet build
+dotnet run -- --GeminiApi:GEMINI_API_KEY="API_KEY" --GeminiApi:MODEL_ID="model-id"
+```
+
+## MCP Client Configuration
+
+Example configuration in the MCP client's `settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "InternetGrounding": {
+      "type": "stdio",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "PATH/InternetGrounding.csproj",
+        "--",
+        "--GeminiApi:GEMINI_API_KEY=API_KEY",
+        "--GeminiApi:MODEL_ID=model-id"
+      ]
+    }
+  }
+}
+```
+
+## Usage
+
+Use the `AskGemini` tool to send prompts and receive responses from the Gemini API. Example:
+1. Send a prompt through the MCP Client.
+2. Receive a grounded answer from Gemini.
