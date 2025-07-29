@@ -28,6 +28,24 @@ public class ResourceType
     }
 
     /// <summary>
+    /// Explains the purpose and usage of the 'url_context' tool in Gemini API requests for grounding.
+    /// </summary>
+    [McpServerResource, Description("Explanation of the 'url_context' tool for Gemini API grounding")]
+    public static string GeminiUrlContextToolExplanation()
+    {
+        return "The 'url_context' tool allows the Gemini API to ground responses based on content from specified URLs.";
+    }
+
+    /// <summary>
+    /// Explains the purpose and usage of the 'google_search' tool in Gemini API requests for grounding.
+    /// </summary>
+    [McpServerResource, Description("Explanation of the 'google_search' tool for Gemini API grounding")]
+    public static string GeminiGoogleSearchToolExplanation()
+    {
+        return "The 'google_search' tool enables the Gemini API to perform Google searches for grounding information.";
+    }
+
+    /// <summary>
     /// Returns a JSON string representing default configuration settings for the Gemini API.
     /// </summary>
     [McpServerResource, Description("Default configuration settings for Gemini API")]
